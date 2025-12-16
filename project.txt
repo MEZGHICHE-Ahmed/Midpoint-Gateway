@@ -1,0 +1,108 @@
+Projet #3: Développement d’une passerelle logicielle (gateway) IA pour un provisionnement provisionnement multi-cibles) des systèmes de sécurité
+1. Contexte
+Les organisations utilisent souvent des systèmes hétérogènes pour gérer les identités et les droits d’accès dans les différentes applications métiers et services: Bases de données SQL pour gérer des applications internes ou métiers, API WEB REST, Services SOAP ou XML RPC comme par exemple l’ERP Odoo, Active Directory (AD) pour les comptes Windows et l’authentification réseau, …
+Dans ce contexte, une solution de gestion centralisée des identités (IAM) telle que Evolveum MidPoint est nécessaire pour orchestrer le cycle de vie des identités (création, modification, suppression, désactivation). Le besoin est de développer un connecteur intelligent de type gateway qui :
+•	Reçoit des requêtes de MidPoint,
+•	Exécute les actions de provisionnement multi-cibles sous forme d’une transaction: Gestion des assignations/créations de Groupes dans (LDAP / Active Directory), Opérations CRUD dans des tables SQL, Provisionnement Odoo, Création de tickets (Eg. GLPI), Droits d’accès dans un portail d’authentification comme Keycloak, Provisionnement des comptes dans Google Firebase.
+•	Et dont les règles de calcul (mapping/aggrégation) d’attributs sont dynamiques et éditables via une interface web.
+•	Intégrer le connecteur avec un agent IA pour faciliter l’adaptation de la gateway vers d’autre logiciels IAM
+Exemple :
+•	Lorsqu’un utilisateur est créé depuis la base HR, son login AD peut être généré automatiquement à partir de prenom.nom et du numéro employée.
+•	Son email SQL peut être calculé à partir du login + domaine configuré.
+•	Ces règles ne sont pas codées en dur, mais définies dans un fichier de configuration éditable.
+•	Partie prenantes : Responsable R&D de la société Evidian (Groupe Atos), Responsable R&D société Maidis
+•	Type de profil : Développeur Full Stack IA
+•	Compétences développés : Architecture logicielle avancé, Agents IA, Cyber-sécurité, IAM, Base de données multi models
+
+Objectif du projet
+Mettre en place un gateway configurable qui :
+1.	Reçoit des requêtes de provisionnement de MidPoint (API REST).
+2.	Applique des règles dynamiques de calcul d’attributs définies dans un fichier de configuration.
+3.	Exécute les actions de provsionnement : Gestion des assignations/créations de Groupes dans (LDAP / Active Directory), Opérations CRUD dans des tables SQL, Provisionnement Odoo, Création de tickets (Eg. GLPI), Droits d’accès dans un portail d’authentification comme Keycloak, Provisionnement des comptes dans Google Firebase.
+4.	Permet d’éditer et de tester ces règles depuis une interface web.
+5.	Implémenter un système de réconciliation des comptes avec MidPoint
+6.	Implémenter un système de validation workflow du provisonnement des comptes pre et post opération avec un nombre de niveau configurable
+7.	La gateway doit disposer d’une base de données mémoire pour historiser les opérations de provisionnement et avoir un cache de l’état des comptes dans les systèmes cibles.
+8.	Intégrer le connecteur avec un agent IA pour faciliter l’adaptation de la gateway vers d’autre logiciels IAM
+Vous devez veiller aux aspects suivants :
+•	IA : Tirer profit des modèles LLM et des fonctionnalités des agents IA (OpenAI, Deepseek, …)
+•	Sécurité : édition de la configuration protégée par login/mot de passe (Keycloak possible), authentification JWT/OAuth2.
+•	Flexibilité : support de règles basées sur expressions dynamiques (par ex. via JEXL, MVEL ou moteur de templates Python/Java).
+•	Auditabilité : versioning de la configuration + historique des modifications.
+•	Résilience : en cas d’erreur de règle → rollback et log clair.
+Livrables attendus
+1.	Planning des sprints
+2.	Back-log produit 
+3.	User Stories 
+4.	Scénarios de recette (Cahier de recette) pour chaque sprint
+5.	Rapport de l’état de l’art décrivant le fonctionnement de Midpoint et le fonctionnement du provisionnement 
+6.	Rapport décrivant l’architecture et les technologies utilisé
+7.	Rapport d’implémentation pour guider un développeur qui va reprendre le projet
+8.	Guide de l’utilisateur (nécessaire avant la recette)
+9.	Rapport d’exécution du projet SCRUM/Github Projects
+10.	Rapport de mise en place de l’environnement CI/CD
+11.	Rapport de recette après chaque Sprint
+12.	Projet Github
+1.	Service gateway (code + API REST).
+2.	Module de parsing et d’exécution des règles dynamiques.
+3.	Interface web pour gérer la configuration.
+4.	Base de provisionnement (multi model)
+5.	Base de logs vectorielle (avec recherche des opérations passées).
+13.	Poster Marketing 
+14.	Présentation Marketing (commerciale)
+15.	Présentation technique avant vente (mettre en avant les fonctionnalités du produit)
+16.	Présentation expliquant la réalisation du projet pour l’évaluation de la SAE
+17.	Environnement technique de démonstration sur 2 ou 3 machines virtuelles
+18.	Vidéos de Démonstration de bout en bout :
+1.	Création d’un compte dans MidPoint,
+2.	Propagation vers AD, SQL, Odoo, GLPI
+3.	Approbation Pre et Post 
+4.	Réconciliation des droits 
+5.	Vérification des logs et retour JSON.
+
+Architecture technique
+•	Gateway Provisioning Service :
+o	API REST pour MidPoint.
+o	Module de calcul. Il s’agit d’un Moteur de règles : interprétation du fichier de configuration du provisionnement.
+o	API d’accès vers systèmes cibles : .Net, Google, Odoo, ….
+o	Base de configuration : stockage du fichier YAML/JSON.
+•	Interface web d’administration (React + backend Flask/FastAPI ou Spring Boot) :
+o	Visualisation et Édition des règles de mapping/aggregation/calcul des attributs du compte et des droits dans les systèmes cible
+o	Suivi des opérations de provisionnement
+o	Annulation (roll back) des provisionnements 
+o	Bouton rouge : Desaction du sysème de provsionnement
+•	Interface web et mobile pour les approbations/validation workflow pre et post provisionnement  
+•	Bases de données de provisonnement.
+•	Base de logs pour traçabilité.
+•	Agent IA
+Systèmes (applications) cibles :
+•  Active Directory (via .Net ) 
+LDAP Apache DS.
+•  Base SQL (via JDBC/SQLAlchemy).
+•  ERP Odoo (via son API RPC XML-RPC/JSON-RPC).
+
+Exemple d’une requete sortante depuis Midpoint 
+{
+  "operation": "create",
+  "targetSystems": ["AD", "SQL", "ODOO"],
+  "accountId": "jdupont",
+  "attributes": {
+    "firstname": "Jean",
+    "lastname": "Dupont",
+    "email": "j.dupont@entreprise.com",
+    "department": "Finance",
+    "job": "Employee"
+  }
+}
+Exemple d’une Réponse JSON renvoyée à MidPoint après exécution de l’opération de provisionnement:
+{
+  "status": "SUCCESS",
+  "calculatedAttributes": {
+    "AD": {"login": "jean.dupont", "email": "j.dupont@entreprise.com"},
+    "SQL": {"username": "jdupont", "role": "APP_USER"},
+    "ODOO": {"login": "j.dupont@entreprise.com", "active": true}
+  },
+  "message": "Provisioning done in AD, SQL and Odoo",
+  "timestamp": "2025-09-17T12:00:00Z"
+}
+
