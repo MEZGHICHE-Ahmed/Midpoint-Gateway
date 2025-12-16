@@ -21,7 +21,7 @@ class ProvisionRequest(BaseModel):
         {
             "operation": "create",
             "targetSystems": ["AD", "SQL", "ODOO"],
-            "accountId": "jdupont",
+            "accountId": 1,
             "sourceAttributes": {
                 "firstname": "Jean",
                 "lastname": "Dupont",
@@ -33,7 +33,7 @@ class ProvisionRequest(BaseModel):
     """
     operation: OperationType
     targetSystems: List[str]
-    accountId: str
+    accountId: int
     sourceAttributes: Dict[str, Any]
     correlationId: Optional[str] = Field(default_factory=lambda: None)
 
