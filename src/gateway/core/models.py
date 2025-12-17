@@ -91,22 +91,26 @@ class ProvisionResult(BaseModel):
 
 
 class RulesConfig(BaseModel):
-    """
-    Configuration des règles de calcul d'attributs par cible.
-    
-    Exemple (YAML -> parsé en Python):
-        targets:
-          AD:
-            rules:
-              login: "${firstname}.${lastname}"
-              email: "${email}"
-          SQL:
-            rules:
-              username: "${accountId}"
-              role: "APP_USER"
-          ODOO:
-            rules:
-              login: "${email}"
-              active: true
-    """
-    targets: Dict[str, Dict[str, Any]]  # {target_name: {rules: ...}}
+        """
+        Configuration des règles de calcul d'attributs par cible.
+
+        Schéma YAML attendu:
+            global:                      # optionnel, variables globales utilisables dans les templates
+                domain: "sae.com"
+                base_dn: "dc=SAE,dc=com"
+            targets:
+                LDAP:
+                    rules:
+                        login: "{{ (firstname ~ '.' ~ lastname) | lower }}"
+                        mail:  "{{ login }}@{{ global.domain }}"
+                        dn:    "uid={{ login }},{{ global.base_dn }}"
+                    object_classes: [inetOrgPerson]    # libre, pour usage par le connecteur
+                    server: { host: localhost, port: 389 }  # libre, pour usage par le connecteur
+                SQL:
+                    rules:
+                        username: "{{ accountId }}"
+                        role: "APP_USER"
+        """
+        targets: Dict[str, Dict[str, Any]]  # {target_name: {rules: ...}}
+        # 'global' est un mot réservé en Python; on l'expose sous 'global_' avec un alias YAML 'global'
+        global_: Optional[Dict[str, Any]] = Field(default=None, alias="global")

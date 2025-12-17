@@ -1,0 +1,34 @@
+# Règles d'exemple pour le calcul des attributs par cible
+# Utilise des templates Jinja2 avec les variables:
+# - firstname, lastname, email, ... (issus de sourceAttributes)
+# - accountId (issu du champ accountId de la requête)
+# - source.* (alias de tous les attributs d'entrée)
+
+global:
+  domain: "sae.com"
+  base_dn: "dc=SAE,dc=com"
+
+targets:
+  LDAP:
+    rules:
+      login: "{{ firstname|lower }}.{{ lastname|lower }}"
+      cn: "{{ firstname }} {{ lastname }}"
+      mail: "{{ login }}@{{ global.domain }}"
+      dn: "uid={{ login }},{{ global.base_dn }}"
+    object_classes:
+      - inetOrgPerson
+    server:
+      host: "localhost"
+      port: 389
+      admin_dn: "cn=admin,{{ global.base_dn }}"
+      admin_password: "admin"
+
+  SQL:
+    rules:
+      username: "{{ accountId }}"
+      role: "APP_USER"
+
+  ODOO:
+    rules:
+      login: "{{ email }}"
+      active: true
