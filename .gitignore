@@ -6,3 +6,4 @@ logs
 __pycache__/
 *.py[cod]
 *$py.class
+src/gateway.egg-info

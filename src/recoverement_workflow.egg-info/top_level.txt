@@ -1,3 +1,0 @@
-config
-gateway
-tests
