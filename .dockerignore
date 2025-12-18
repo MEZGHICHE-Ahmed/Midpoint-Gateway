@@ -1,0 +1,17 @@
+# Ignore les fichiers inutiles dans l'image Docker
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.env
+.venv
+venv/
+.pytest_cache/
+.git/
+.gitignore
+*.egg-info/
+dist/
+build/
+.DS_Store
